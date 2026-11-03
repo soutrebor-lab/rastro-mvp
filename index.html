@@ -160,7 +160,7 @@
         const audio=new Blob(chunks,{type:mime});
         const form=new FormData();
         form.append('file',new File([audio],`rastro-recording.${extension}`,{type:mime}));
-        const response=await fetch('/api/transcribe',{method:'POST',body:form});
+        const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),55000);let response;try{response=await fetch('/api/transcribe',{method:'POST',body:form,signal:controller.signal})}finally{clearTimeout(timeout)}
         const payload=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(payload.error||'Falha na transcrição');
         return {text:String(payload.text||fallback).replace(/\s+/g,' ').trim(),data:payload.data||null};
