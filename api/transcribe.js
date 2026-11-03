@@ -1,5 +1,3 @@
-export const config = { runtime: 'edge' };
-
 export default async function handler(request) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Método não permitido.' }), {
@@ -17,6 +15,13 @@ export default async function handler(request) {
   }
 
   try {
+    if (typeof request.formData !== 'function') {
+      return new Response(JSON.stringify({ error: 'Este ambiente não aceita upload de áudio.' }), {
+        status: 500,
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+      });
+    }
+
     const incoming = await request.formData();
     const audio = incoming.get('file');
     if (!audio || typeof audio.arrayBuffer !== 'function') {
